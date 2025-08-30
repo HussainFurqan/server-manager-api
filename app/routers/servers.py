@@ -104,3 +104,20 @@ async def update_server(server_id: int, payload: ServerUpdate, pool: AsyncConnec
     if not row:
         raise HTTPException(status_code=404, detail="Server not found")
     return row
+
+@router.delete("/{server_id}", summary="Delete a server by ID")
+async def delete_server(server_id: int, pool: AsyncConnectionPool = Depends(get_pool)):
+    async with pool.connection() as conn:
+        try:
+            cur = await conn.execute(
+                "DELETE FROM public.server WHERE id = %s RETURNING id;",
+                (server_id,)
+            )
+            row = await cur.fetchone()
+        except Exception as e:
+            # e.g., FK constraint (linked rows in switch_to_server)
+            raise HTTPException(status_code=400, detail=str(e))
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Server not found")
+    return {"deleted_id": row["id"]}

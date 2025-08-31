@@ -91,7 +91,7 @@ async def create_server(payload: ServerIn, pool: AsyncConnectionPool = Depends(g
 @router.put(
     "/{server_id}",
     response_model=ServerOut,
-    summary="Update a server (partial allowed)",
+    summary="Update an existing server",
     responses={
         200: {"description": "Server updated"},
         400: {"description": "Invalid input (e.g., bad datacenter_id, malformed JSON)"},
